@@ -1,5 +1,8 @@
 all:
 	javac -d bin -cp ./ src/*.java
 
-run:
+slow:
 	java -cp bin Slow
+
+fast:
+	java -cp bin Fast

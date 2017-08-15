@@ -94,4 +94,14 @@ public class Square
     {
         return this.c;
     }
+
+    public void setColor(Color c)
+    {
+        this.c = c;
+    }
+
+    public String toString()
+    {
+        return "(x,y) : (" + this.x + "," + this.y + ")";
+    }
 }
