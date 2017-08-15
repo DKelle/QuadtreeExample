@@ -16,7 +16,7 @@ public class Fast extends JComponent
     private int timesteps = 0;
     private int numQuads = 4;
 
-    private boolean useQuadColors = true;
+    private boolean useQuadColors = false;
 
     private long starttime;
     private long currenttime;

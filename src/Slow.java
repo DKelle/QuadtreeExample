@@ -8,7 +8,7 @@ import java.awt.event.*;
 public class Slow extends JComponent
 {
     private int WIDTH, HEIGHT;
-    private int squares = 1000;
+    private int squares = 10000;
     private Square[] squareArr = new Square[squares];
     private int x = 0;
 
