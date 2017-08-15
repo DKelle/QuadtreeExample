@@ -8,9 +8,17 @@ import java.awt.event.*;
 public class Slow extends JComponent
 {
     private int WIDTH, HEIGHT;
-    private int squares = 100;
+    private int squares = 1000;
     private Square[] squareArr = new Square[squares];
     private int x = 0;
+
+    private int timesteps = 0;
+
+    private long starttime;
+    private long currenttime;
+    private long timeInSeconds;
+    private long fps;
+
 
     public static void main(String[] args)
     {
@@ -25,6 +33,8 @@ public class Slow extends JComponent
         HEIGHT = (int)d.getHeight();
         initJFrame();
         initSquare();
+        starttime = System.currentTimeMillis();
+
     }
 
 
@@ -80,16 +90,28 @@ public class Slow extends JComponent
 
         update();
 
-
        for(Square s : squareArr)
        {
             g.setColor(s.getColor());
             g.fillRect(s.x, s.y, s.WIDTH, s.HEIGHT);
        }
+
+
+        //Paint the FPS in the corner
+        g.drawString("FPS: " + Long.toString(fps), WIDTH - 100, 100);
+        g.drawString("TOTAL TIME " + Long.toString(timeInSeconds), WIDTH - 100, 130);
+        g.drawString("TIMESTEPS " + Long.toString(timesteps), WIDTH - 100, 160);
+
+        timesteps++;
    }
 
     public void update()
     {
+
+        currenttime = System.currentTimeMillis();
+        timeInSeconds = (currenttime - starttime) / 1000;
+        fps = timesteps / timeInSeconds;
+
         for(Square s : squareArr)
             s.update();
 
