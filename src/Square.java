@@ -70,9 +70,19 @@ public class Square
             //No need for real physics
             this.reflect(true, true);
             other.reflect(true, true);
+            this.manipulateVelocities();
         }
 
         return true;
+    }
+
+    public void manipulateVelocities()
+    {
+        int deltax = ThreadLocalRandom.current().nextInt(-4, 5);
+        int deltay = ThreadLocalRandom.current().nextInt(-4, 5);
+
+        this.velx += deltax;
+        this.vely += deltay;
     }
 
     public void reflect(boolean x, boolean y)

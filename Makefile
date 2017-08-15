@@ -6,3 +6,6 @@ slow:
 
 fast:
 	java -cp bin Fast
+
+make combined:
+	java -cp bin CollisionsCombined

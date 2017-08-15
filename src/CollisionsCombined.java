@@ -8,13 +8,13 @@ import java.awt.event.*;
 
 import java.util.ArrayList;
 
-public class Fast extends JComponent
+public class CollisionsCombined extends JComponent
 {
     private int WIDTH, HEIGHT;
-    private int squares = 20000;
+    private int squares = 50000;
     private int x = 0;
     private int timesteps = 0;
-    private int numQuads = 4;
+    private int numQuads = 50;
 
     private boolean useQuadColors = true;
 
@@ -23,7 +23,7 @@ public class Fast extends JComponent
     private long timeInSeconds;
     private long fps;
 
-    public static ArrayList<Square>[][] boundingBoxes = new ArrayList[4][4];
+    public ArrayList<Square>[][] boundingBoxes = new ArrayList[numQuads][numQuads];
     private Color[][] quadColors = new Color[numQuads][numQuads];
     private Square[] squareArr = new Square[squares];
 
@@ -31,10 +31,10 @@ public class Fast extends JComponent
     public static void main(String[] args)
     {
         System.out.println("Hello world");
-        new Fast();
+        new CollisionsCombined();
     }
 
-    public Fast()
+    public CollisionsCombined()
     {
         Dimension d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         WIDTH = (int)d.getWidth();
@@ -115,7 +115,15 @@ public class Fast extends JComponent
                 int r = ThreadLocalRandom.current().nextInt(1, 256);
                 int g = ThreadLocalRandom.current().nextInt(1, 256);
                 int b = ThreadLocalRandom.current().nextInt(1, 256);
+
+                //Make the screen look like a nice gradient
+                long ct = System.currentTimeMillis();
+                r = (int)(ct % 155);
+                g = (int)(155.0 * ((j+0.0)/(quadColors[i].length+0.0)));
+                b = (int)(155.0 * ((i+0.0)/(quadColors.length+0.0)));
                 quadColors[i][j] = new Color(r,g,b);
+
+
             }
         }
 
@@ -161,22 +169,25 @@ public class Fast extends JComponent
         for(Square s : squareArr)
         {
             //How long is each section of our 4X4 screen?
-            int width = WIDTH / numQuads;
-            int height = HEIGHT / numQuads;
-            int xquad = s.x/width;
-            int yquad = s.y/height;
+            double width = WIDTH / (numQuads + 0.0);
+            double height = HEIGHT / (numQuads + 0.0);
+            double xquad = s.x/(width + 0.0);
+            double yquad = s.y/(height + 0.0);
 
-            //restrict quad to values 0-3
-            xquad = (xquad == numQuads) ? 3 : xquad;
-            yquad = (yquad == numQuads) ? 3 : yquad;
+            //restrict quad to values 0-numQuads-1
+            xquad = (xquad == numQuads) ? numQuads-1 : xquad;
+            yquad = (yquad == numQuads) ? numQuads-1 : yquad;
+
+            int xq = (int)xquad;
+            int yq = (int)yquad;
 
             if(useQuadColors)
             {
                 //Change this squares color to be the quadrant color
-                s.setColor(quadColors[xquad][yquad]);
+                s.setColor(quadColors[xq][yq]);
             }
 
-            boundingBoxes[xquad][yquad].add(s);
+            boundingBoxes[xq][yq].add(s);
 
 
         }
