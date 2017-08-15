@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class Fast extends JComponent
 {
     private int WIDTH, HEIGHT;
-    private int squares = 1000;
+    private int squares = 10000;
     private int x = 0;
     private int timesteps = 0;
     private int numQuads = 4;
@@ -43,6 +43,8 @@ public class Fast extends JComponent
         initSquare();
         initBoundingBox();
         initJFrame();
+        if(useQuadColors)
+            initQuadColors();
         starttime = System.currentTimeMillis();
 
     }
@@ -102,18 +104,22 @@ public class Fast extends JComponent
         for(int i = 0; i < boundingBoxes.length; i++) {
             for(int j = 0; j < boundingBoxes[i].length; j++) {
                  boundingBoxes[i][j] = new ArrayList<Square>();
-
-                if(useQuadColors)
-                {
-                    int r = ThreadLocalRandom.current().nextInt(1, 256);
-                    int g = ThreadLocalRandom.current().nextInt(1, 256);
-                    int b = ThreadLocalRandom.current().nextInt(1, 256);
-                    quadColors[i][j] = new Color(r,g,b);
-                }
             }
         }
     }
 
+    public void initQuadColors()
+    {
+        for(int i = 0; i < quadColors.length; i++) {
+            for(int j = 0; j < quadColors[i].length; j++) {
+                int r = ThreadLocalRandom.current().nextInt(1, 256);
+                int g = ThreadLocalRandom.current().nextInt(1, 256);
+                int b = ThreadLocalRandom.current().nextInt(1, 256);
+                quadColors[i][j] = new Color(r,g,b);
+            }
+        }
+
+    }
    public void paintComponent(Graphics g){
        super.paintComponent(g);
 
@@ -161,9 +167,6 @@ public class Fast extends JComponent
             //restrict quad to values 0-3
             xquad = (xquad == numQuads) ? 3 : xquad;
             yquad = (yquad == numQuads) ? 3 : yquad;
-
-            System.out.println("S is located at " + s.toString());
-            System.out.println("S is in dimension " + xquad + " , " + yquad);
 
             if(useQuadColors)
             {
