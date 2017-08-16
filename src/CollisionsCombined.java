@@ -10,18 +10,26 @@ import java.util.ArrayList;
 
 public class CollisionsCombined extends JComponent
 {
+    public enum QuadColorType {
+            ALL_RANDOM,
+            QUAD_COLORS,
+            RAINBOW;
+    }
+
     private int WIDTH, HEIGHT;
-    private int squares = 50000;
+    private int squares = 1000;
     private int x = 0;
     private int timesteps = 0;
-    private int numQuads = 50;
+    private int numQuads = 4;
 
-    private boolean useQuadColors = true;
+    private boolean fastCollisions = true;
 
     private long starttime;
     private long currenttime;
     private long timeInSeconds;
     private long fps;
+
+    private QuadColorType colorType = QuadColorType.QUAD_COLORS;
 
     public ArrayList<Square>[][] boundingBoxes = new ArrayList[numQuads][numQuads];
     private Color[][] quadColors = new Color[numQuads][numQuads];
@@ -39,12 +47,18 @@ public class CollisionsCombined extends JComponent
         Dimension d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         WIDTH = (int)d.getWidth();
         HEIGHT = (int)d.getHeight();
-        quadColors = new Color[numQuads][numQuads];
+
         initSquare();
-        initBoundingBox();
-        initJFrame();
-        if(useQuadColors)
+
+        if(fastCollisions)
+        {
+            quadColors = new Color[numQuads][numQuads];
+            initBoundingBox();
+        }
+        if(colorType != QuadColorType.ALL_RANDOM && fastCollisions)
             initQuadColors();
+
+        initJFrame();
         starttime = System.currentTimeMillis();
 
     }
@@ -110,17 +124,23 @@ public class CollisionsCombined extends JComponent
 
     public void initQuadColors()
     {
+        System.out.println("Randomizing quad colors");
         for(int i = 0; i < quadColors.length; i++) {
             for(int j = 0; j < quadColors[i].length; j++) {
+
                 int r = ThreadLocalRandom.current().nextInt(1, 256);
                 int g = ThreadLocalRandom.current().nextInt(1, 256);
                 int b = ThreadLocalRandom.current().nextInt(1, 256);
 
                 //Make the screen look like a nice gradient
-                long ct = System.currentTimeMillis();
-                r = (int)(ct % 155);
-                g = (int)(155.0 * ((j+0.0)/(quadColors[i].length+0.0)));
-                b = (int)(155.0 * ((i+0.0)/(quadColors.length+0.0)));
+                if(colorType == QuadColorType.RAINBOW)
+                {
+                    System.out.println("RAINBOW RANDOMIZATION");
+                    long ct = System.currentTimeMillis();
+                    r = (int)(ct % 155);
+                    g = (int)(155.0 * ((j+0.0)/(quadColors[i].length+0.0)));
+                    b = (int)(155.0 * ((i+0.0)/(quadColors.length+0.0)));
+                }
                 quadColors[i][j] = new Color(r,g,b);
 
 
@@ -153,65 +173,92 @@ public class CollisionsCombined extends JComponent
     public void update()
     {
 
+
+        System.out.println("\n\n");
+        for(int a = 0; a < quadColors.length; a++)
+        {
+            for(int b = 0; b< quadColors[a].length; b++)
+            {
+                 System.out.print("\t" + quadColors[a][b]);
+            }
+            System.out.println("\n");
+        }
+
         currenttime = System.currentTimeMillis();
         timeInSeconds = (currenttime - starttime) / 1000;
-        fps = timesteps / timeInSeconds;
+        fps = (timeInSeconds == 0) ? 0 : timesteps / timeInSeconds;
 
         initBoundingBox();
 
         for(Square s : squareArr)
             s.update();
 
-
-        //begin detecting collisions
-        //first break the square up into one of 16 quadrants
-
-        for(Square s : squareArr)
+        if(!fastCollisions)
         {
-            //How long is each section of our 4X4 screen?
-            double width = WIDTH / (numQuads + 0.0);
-            double height = HEIGHT / (numQuads + 0.0);
-            double xquad = s.x/(width + 0.0);
-            double yquad = s.y/(height + 0.0);
-
-            //restrict quad to values 0-numQuads-1
-            xquad = (xquad == numQuads) ? numQuads-1 : xquad;
-            yquad = (yquad == numQuads) ? numQuads-1 : yquad;
-
-            int xq = (int)xquad;
-            int yq = (int)yquad;
-
-            if(useQuadColors)
+            //begin detecting collisions
+            for(int i = 0; i < squareArr.length; i++)
             {
-                //Change this squares color to be the quadrant color
-                s.setColor(quadColors[xq][yq]);
-            }
-
-            boundingBoxes[xq][yq].add(s);
-
-
-        }
-
-        //Check for collisions of square that are in the same quadrant
-        for(int a = 0; a < boundingBoxes.length; a++)
-        {
-            for(int b = 0; b< boundingBoxes[a].length; b++)
-            {
-                ArrayList<Square> squareList = boundingBoxes[a][b];
-
-                //Now that we have all the squares that are close together, check for collisisons within them
-                for(int i = 0; i < squareList.size(); i++)
+                for(int j = i+1; j < squareArr.length; j++)
                 {
-                    for(int j = i+1; j < squareList.size(); j++)
-                    {
-                        //intersect squares i and j
-                        Square sqr = squareList.get(i);
-                        Square sqr1 = squareList.get(j);
-                        sqr.intersect(sqr1);
-                    }
+                    //intersect squares i and j
+                    Square sqr = squareArr[i];
+                    Square sqr1 = squareArr[j];
+                    sqr.intersect(sqr1);
+                }
+            }
+        }
+        else
+        {
+            //begin detecting collisions
+            //first break the square up into one of 16 quadrants
+            for(Square s : squareArr)
+            {
+                //How long is each section of our 4X4 screen?
+                double width = WIDTH / (numQuads + 0.0);
+                double height = HEIGHT / (numQuads + 0.0);
+                double xquad = s.x/(width + 0.0);
+                double yquad = s.y/(height + 0.0);
+
+                //restrict quad to values 0-numQuads-1
+                xquad = (xquad == numQuads) ? numQuads-1 : xquad;
+                yquad = (yquad == numQuads) ? numQuads-1 : yquad;
+
+                int xq = (int)xquad;
+                int yq = (int)yquad;
+
+                if(colorType != QuadColorType.ALL_RANDOM && fastCollisions)
+                {
+                    //Change this squares color to be the quadrant color
+                    s.setColor(quadColors[xq][yq]);
                 }
 
+                boundingBoxes[xq][yq].add(s);
+
+
             }
+
+            //Check for collisions of square that are in the same quadrant
+            for(int a = 0; a < boundingBoxes.length; a++)
+            {
+                for(int b = 0; b< boundingBoxes[a].length; b++)
+                {
+                    ArrayList<Square> squareList = boundingBoxes[a][b];
+
+                    //Now that we have all the squares that are close together, check for collisisons within them
+                    for(int i = 0; i < squareList.size(); i++)
+                    {
+                        for(int j = i+1; j < squareList.size(); j++)
+                        {
+                            //intersect squares i and j
+                            Square sqr = squareList.get(i);
+                            Square sqr1 = squareList.get(j);
+                            sqr.intersect(sqr1);
+                        }
+                    }
+
+                }
+            }
+
         }
 
     }
