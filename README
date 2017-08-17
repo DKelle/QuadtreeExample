@@ -1,0 +1,23 @@
+The purpose of these files to to demonstrate the runtime differences between two collision algorithms.
+
+The first, and slower of the two algorithms simply check for a collision between every pair of squares. This algorithm is N^2
+
+The second, and faster of the two algorithms divides the screen into MxM quadrants.
+Then, for each quadrant, the first algorithm is used with /only the square in that quadrant/.
+This algorith is (N/(MxM))^2
+Essentially this is the 2d equivalent of an OctTree.
+
+
+
+~~~~~~~~HOW TO RUN~~~~~~~~
+To run the slow algorithm
+    make slow
+
+To run the fast algorithm
+    make fast
+
+Alternatively, edit the CollisionsCombined.java file, and run
+    make combined
+
+
+
